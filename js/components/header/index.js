@@ -22,17 +22,16 @@ export default class Header extends Component{
     }
 
     componentWillMount() {
-    
 
         }
 
     componentDidMount() {
-        
-
         OneSignal.getPermissionSubscriptionState((status) => {
             
-            if(status.userSubscriptionEnabled=true) {
-                OneSignal.setSubscription(true);
+            
+            
+            
+            if(status.subscriptionEnabled=="true") {                
                 this.setState({
                     bell: 'bell',
                     switch: false,
@@ -50,8 +49,8 @@ export default class Header extends Component{
 
 
             _setOneSignalSetStatus(INT) {
-                console.log(INT);
-                OneSignal.setSubscription(INT);
+                
+
                 this.setState({userPushnotification: INT});
 
                 if(this.state.switch===true) {
@@ -59,12 +58,13 @@ export default class Header extends Component{
                         bell: 'bell',
                         switch: false,
                         });
-
+                        OneSignal.setSubscription(true);
                     } else {
                         this.setState({
                             bell: 'bell-off',
                             switch: true,
                             });
+                            OneSignal.setSubscription(false);
                     }
 
             } 
