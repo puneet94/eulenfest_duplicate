@@ -1,0 +1,175 @@
+import React, { PureComponent } from 'react';
+import {
+	Platform,
+	Alert,
+	StyleSheet,
+	Text,
+	View,
+	FlatList,
+	TouchableOpacity,
+	TouchableHighlight,
+	Dimensions,
+	Image
+} from 'react-native';
+import appVars from '../../appVars';
+import appStyles from '../../appStyles';
+
+import MapView from 'react-native-maps';
+import MapViewDirections from 'react-native-maps-directions';
+import AwseomeIcon from 'react-native-vector-icons/FontAwesome';
+
+var {height, width} = Dimensions.get('window');
+
+export default class LocationMapScreen extends PureComponent {
+	constructor(props){
+		super(props);
+		this.state = { 
+
+			region:{
+				latitude:parseFloat(this.props.navigation.state.params.long),
+				longitude:parseFloat(this.props.navigation.state.params.lat),
+				latitudeDelta:0.0003,
+			  	longitudeDelta:0.0003,
+				accuracy:null,
+				},
+			
+				latitude: parseFloat(this.props.navigation.state.params.long),
+				longitude: parseFloat(this.props.navigation.state.params.lat),
+				latitudeDelta:0.00003,
+				longitudeDelta:0.00003,
+				accuracy:null,
+				userLocationAvailable: false,
+			  }
+
+			  
+		}
+
+		componentWillMount() {
+			
+			navigator.geolocation.getCurrentPosition(
+			  (position) => {
+				
+				this.setState({
+					userLatitude: 51.7154562,
+					userLongitude: 9.9345151,
+					userAccuracy: position.coords.accuracy,
+					userLocationAvailable: true,
+				  	error: null,
+				});
+				
+
+			  },
+			  (error) => this.setState({ error: error.message }),
+			  { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
+			);
+
+		
+		  }
+
+		  calDelta(lat,long,accuracy,distanceMulti){
+			const oneDegreeOfLatitudeInMeters = 111.32 * 1000;
+			const latDelta = accuracy / oneDegreeOfLatitudeInMeters;
+			const longDelta = accuracy / (oneDegreeOfLatitudeInMeters * Math.cos(lat * (Math.PI / 180)));
+			 this.setState({
+				 region:{
+				   latitude:lat,
+				   longitude:long,
+				   latitudeDelta:latDelta*distanceMulti,
+				   longitudeDelta:longDelta*distanceMulti,
+				   accuracy:accuracy,
+				   },
+				 });
+		 }
+
+	render() {
+		
+		const destination = {latitude: this.state.latitude, longitude: this.state.longitude};
+		const origin = {latitude: this.state.userLatitude, longitude:  this.state.userLongitude};
+		return (
+	  		<View style={styles.container}>
+				<MapView.Animated
+					style={styles.map}
+					customMapStyle = {appVars.objMapstyle}
+					showsUserLocation = {false}
+					initialRegion={{
+						latitude: this.state.latitude,
+						longitude: this.state.longitude,
+						latitudeDelta: this.state.region.latitudeDelta,
+						longitudeDelta: this.state.region.longitudeDelta,
+					  }}
+					>
+
+					<MapView.Marker
+						coordinate={{
+							latitude: this.state.latitude,
+							longitude: this.state.longitude
+						}}
+						title={this.props.navigation.state.params.name}
+						description={this.props.navigation.state.params.subname}>
+						<View><AwseomeIcon name="map-marker" size={36}  color={appVars.colorMain}/></View>
+					
+					</MapView.Marker>
+
+
+						{this.state.userLocationAvailable &&
+					
+					[<MapView.Marker
+						key = {1}
+						coordinate={{
+							latitude: origin.latitude,
+							longitude: origin.longitude
+						}}
+						title={this.props.navigation.state.params.name}
+						description={this.props.navigation.state.params.subname}>
+						<View><AwseomeIcon name="user" size={28}  color={appVars.colorBlack}/></View>
+					</MapView.Marker>,
+					<MapViewDirections
+						key={2}
+						origin={origin}
+    					destination={destination}
+						apikey={appVars.MAPS_API_KEY}
+						mode = {"walking"}
+						strokeWidth={4}
+						strokeColor={appVars.colorMain}
+						onReady={(result) => {
+							this.mapView.fitToCoordinates(result.coordinates, {
+							  edgePadding: {
+								right: (width / 20),
+								bottom: (height / 20),
+								left: (width / 20),
+								top: (height / 20),
+							  }
+							});
+						  }}
+						onReady={(result) => {
+
+
+							this.calDelta(this.state.userLatitude,this.state.userLongitude,this.state.userAccuracy,result.distance*100);
+
+						  }}
+
+						
+
+
+					/>]}
+			</MapView.Animated>		
+	  </View>
+	);
+  }
+}
+
+
+
+
+const styles = StyleSheet.create({
+  container: {
+	flex: 1,
+	justifyContent: 'center',
+	alignItems: 'center',
+	backgroundColor: '#F5FCFF',
+  },
+  map: {
+	...StyleSheet.absoluteFillObject,
+  }
+  
+});
