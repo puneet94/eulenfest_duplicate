@@ -158,6 +158,9 @@ const ScreenHeight = Dimensions.get('window').height;
   labelFromLib: "Album",
   labelMsg: "Nachricht",
 
+  pushNotificationsEnabled: "Push-Benachrichtigungen aktiviert.",
+  pushNotificationsDisabled: "Push-Benachrichtigungen deaktiviert.",
+
   //text
   textDownloadAllreadRunning: "Bitte warten Sie bis der aktuelle Download abgeschlossen ist.",
   textNoIssueSelected: "Es wurde keine Ausgabe ausgewählt",

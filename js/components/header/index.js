@@ -6,6 +6,7 @@ import{Text,View,Image,TouchableWithoutFeedback,Platform,StyleSheet,TouchableOpa
 import appVars from '../../appVars';
 import appStyles from '../../appStyles';
 import Icon from 'react-native-vector-icons/Feather';
+import Toast, {DURATION} from 'react-native-easy-toast'
 import { NavigationActions } from 'react-navigation'
 
 export default class Header extends Component{
@@ -50,7 +51,6 @@ export default class Header extends Component{
 
             _setOneSignalSetStatus(INT) {
                 
-
                 this.setState({userPushnotification: INT});
 
                 if(this.state.switch===true) {
@@ -59,12 +59,14 @@ export default class Header extends Component{
                         switch: false,
                         });
                         OneSignal.setSubscription(true);
+                        this.refs.toast.show(appVars.pushNotificationsEnabled,10);
                     } else {
                         this.setState({
                             bell: 'bell-off',
                             switch: true,
                             });
                             OneSignal.setSubscription(false);
+                            this.refs.toast.show(appVars.pushNotificationsDisabled,10);
                     }
 
             } 
@@ -100,7 +102,7 @@ export default class Header extends Component{
                         <Icon name="more-vertical" style={[appStyles.headerIcon,{paddingRight: 10}]} />
                         </TouchableOpacity>
                 </View>
-                    
+                <Toast ref="toast"/> 
    
         </View>
         
